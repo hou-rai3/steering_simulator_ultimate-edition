@@ -6,61 +6,39 @@ def run_gui(shared_data):
   class MainWindow(Qw.QMainWindow):
     def __init__(self):
       super().__init__()
-      self.setWindowTitle('Robot Control PID Tuning')
-      self.setGeometry(100, 100, 400, 300)
+      self.setWindowTitle('PID Tuning GUI')
 
       layout = Qw.QVBoxLayout()
       self.central_widget = Qw.QWidget()
       self.central_widget.setLayout(layout)
       self.setCentralWidget(self.central_widget)
 
-      # 説明ラベル
-      info_label = Qw.QLabel(
-          "Robot Control Parameters\nUse WASD or Arrow Keys to control the robot")
-      layout.addWidget(info_label)
-
       # スライダーを作成
       self.kp_slider = self.create_slider(
-          "KP (Proportional)", shared_data, "kp", 300, layout)
+          "KP Angle", shared_data, "kp", 200)
       self.ki_slider = self.create_slider(
-          "KI (Integral)", shared_data, "ki", 100, layout)
+          "KI Angle", shared_data, "ki", 100)
       self.kd_slider = self.create_slider(
-          "KD (Derivative)", shared_data, "kd", 100, layout)
+          "KD Angle", shared_data, "kd", 100)
 
-      layout.addWidget(Qw.QLabel("Speed Control:"))
       self.kp_speed_slider = self.create_slider(
-          "KP Speed", shared_data, "kp_speed", 200, layout)
+          "KP Speed", shared_data, "kp_speed", 200)
       self.ki_speed_slider = self.create_slider(
-          "KI Speed", shared_data, "ki_speed", 100, layout)
+          "KI Speed", shared_data, "ki_speed", 100)
       self.kd_speed_slider = self.create_slider(
-          "KD Speed", shared_data, "kd_speed", 100, layout)
+          "KD Speed", shared_data, "kd_speed", 100)
 
-    def create_slider(self, label, shared_data, key, max_value, layout):
-      slider_layout = Qw.QHBoxLayout()
-
-      label_widget = Qw.QLabel(label + ":")
-      label_widget.setMinimumWidth(120)
-
+    def create_slider(self, label, shared_data, key, max_value):
+      layout = Qw.QVBoxLayout()
+      self.central_widget.setLayout(layout)
       slider = Qw.QSlider(Qc.Qt.Orientation.Horizontal)
       slider.setMinimum(0)
       slider.setMaximum(max_value)
       slider.setValue(int(shared_data[key] * 100))
-
-      value_label = Qw.QLabel(f"{shared_data[key]:.2f}")
-      value_label.setMinimumWidth(50)
-
-      def update_value(value):
-        new_val = value / 100.0
-        shared_data.update({key: new_val})
-        value_label.setText(f"{new_val:.2f}")
-
-      slider.valueChanged.connect(update_value)
-
-      slider_layout.addWidget(label_widget)
-      slider_layout.addWidget(slider)
-      slider_layout.addWidget(value_label)
-
-      layout.addLayout(slider_layout)
+      slider.valueChanged.connect(
+          lambda value: shared_data.update({key: value / 100.0}))
+      layout.addWidget(Qw.QLabel(label))
+      layout.addWidget(slider)
       return slider
 
   app = Qw.QApplication(sys.argv)
